@@ -117,6 +117,7 @@ void Parser::createPST() {
 
 void Parser::printTree() {
 	printTreeHelper(grandma);
+	cout << endl; 
 }
 
 void Parser::printTreeHelper(Node* currentNode) {
