@@ -31,6 +31,8 @@ int main() {
 		parme.addTokens();
 		parme.print_tokens();
 		parme.close_file();
+		parme.createPST();
+		parme.printTree(); 
 
 		//start parsing 
 

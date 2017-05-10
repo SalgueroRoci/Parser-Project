@@ -32,7 +32,7 @@ void Lexer::addTokens() {
 
 	do {
 		token = lex();
-		if (token == eof) break;
+		//if (token == eof) break; 
 		if (token == space) continue; //skip if a space 
 		if (token == newLine) continue;
 

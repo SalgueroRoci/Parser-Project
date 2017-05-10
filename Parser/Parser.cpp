@@ -15,63 +15,124 @@
 #include "Parser.h"
 
 void Parser::createPST() {
-	//add the pgm rule to stack 
-	
 
-	/*while(stack not empty) {
-		//tracker points to top of stack 
+	Node* pgm = new Node;
+	int rule;
+	int numofTokens = numTokens;
+	int currentToken = 0;
+	int t = -1; //used to look up in LL parse matrix 
 
-		//check top of stack if terminal or non terminal : 
-		symArray[tracker->sym].isTerm == true;
-		 if (is terminal) {
-			if(symArray[tracker->sym].idterm =/= tokenStream[current]) {
-				return error;
+	//Add the PGM Node to the tree
+	pgm->sym = Pgm;
+	grandma = pgm;
+
+	//Adds the PGM Node onto the stack
+	stackParser.push(pgm);
+
+	//Loops until the stack is empty
+	while (!stackParser.empty()) {
+
+		//Points to the top of the stack
+		tracker = (stackParser.top());
+
+		std::cout << "top of stack:" << nonTerm(symArray[tracker->sym].idnon) << " top of input: " << tokenType(tokenStream[currentToken].type) << std::endl;
+
+		//If the top of the stack is a terminal
+		if (symArray[tracker->sym].isTerm == true) {
+
+			//If the terminal on the stack doesn't match the input then it exits
+			if (symArray[tracker->sym].idterm != tokenStream[currentToken].type) {
+				std::cout << "Error top of stack =/= top of token input" << endl;
+				return;
 			}
+			//Otherwise, if it's an identifier then it's added to the symbol table
 			else {
 				if (symArray[tracker->sym].idterm == ident) {
-					add to symbol table 
+					//Add to symbol table
 				}
-				pop off stack;
-				current++; //int for the tokenStream increases to next token 
-			}
-		 } //end of terminal top of stack 
-		 else if (non terminal) {
-			//Look up in LL matrix :
-			int rule = table[symArray[tracker->sym].idnon][tokenArray[current].type];
 
-			if (rule = 0) 
-				return error; 
-			
-			//look up rule children 
-			grammarRules[rule].numKids
-			if (grammarRules[rule].numKids == 0 ) 
-				pop off stack; 
+				//Pop the node off the stack
+				stackParser.pop();
+				currentToken++;
+			}
+		}
+		//If the top of the stack is a non-terminal
+		else if (symArray[tracker->sym].isTerm == false){
+			//Look up in LL Matrix
+			//Checks to see 
+			t = getSymInx(tokenStream[currentToken].type);
+			rule = table[symArray[tracker->sym].idnon][symArray[t].idterm];
+
+			//std::cout << symArray[tracker->sym].idnon << " " << t << endl;
+			std::cout << " rule: " << rule << endl; 
+
+			//If the cell in the LL Parse Matrix is empty
+			if (rule == 0) {
+				std::cout << "LL parse matrix returned null" << endl;
+				return; 
+			}
+
+			//Look up the children of the node
+			if (grammerRules[rule].numKids == 0)
+				stackParser.pop();
 			else {
-				pop off stack 
-				for ( int i = 0 ; i <grammarRules[rule].numKids; i++ ) {
-					tracker.kids[i] = new node; 
-					tracker.kids[i].sym = grammarRules[rule].RHS[i];
-					tracker.kids[i].numofkids = 0; 
-				} 
-				//add onto stack in reserse order 
-				for (int i = grammarRules[rule].numKids-1; i >= 0; i-- ) {
-					add onto stack (tracker.kids[i]);
+				stackParser.pop();
+
+				//Creates a the kids 
+				for (int i = 0; i < grammerRules[rule].numKids; i++) {
+					tracker->kids[i] = new Node;
+					tracker->kids[i]->sym = grammerRules[rule].RHS[i];
+					tracker->kids[i]->numofKids = 0;
 				}
 
-				tracker = top of stack; 
+				tracker->numofKids = grammerRules[rule].numKids;
+
+
+				for (int i = grammerRules[rule].numKids - 1; i >= 0; i--)
+					stackParser.push(tracker->kids[i]);
+
 			}
-		 }//end non terminal 
 
-		 if(input empty AND stack not empty) 
-			return error; 		
-	} //end while
 
-	if(input not empty and stack is empty) 
-		return error; 
+		} //End of non-terminal
 
-	cout << "No errors, grammar fine! PST created" << endl; 
+		//Terminates if the input is empty but the stack is not empty
+		if (currentToken > numofTokens && !stackParser.empty()) {
+			std::cout << "Error! Ran out of tokens. " << endl;
+			return;
+		}
+			
 
-	*/
+	}//End of While Loop
+
+	//Terminates if the there is input but the stack is empty
+	if (currentToken < numofTokens-1) {
+		std::cout << "Stack empty but still have input" << endl;
+		return;
+	}	
+
+	std::cout << "No errors, grammar fine! PST created" << endl;
+
+}
+
+void Parser::printTree() {
+	printTreeHelper(grandma);
+}
+
+void Parser::printTreeHelper(Node* currentNode) {
+	if (currentNode == NULL) return; 
+
+	if (symArray[currentNode->sym].isTerm == false) {
+		cout << "(Node:" << nonTerm(symArray[currentNode->sym].idnon);
+	}
+	else {
+		cout << "(Node:" << tokenType(symArray[currentNode->sym].idterm);
+	}
+	
+
+	for (int i = 0; i < currentNode->numofKids; i++)
+		printTreeHelper(currentNode->kids[i]);
+	cout << ")" ; //end of a branch
 }
 
 Parser::Parser() {
@@ -87,6 +148,16 @@ Parser::~Parser() {
 	delete[] tokenStream;
 }
 
+int Parser::getSymInx(int term) {
+	int i; 
+	for (i = 21; i <= 43; i++) {
+		//cout << " I : " << i << " term: " << term << "sym array" << symArray[i].idterm << endl;
+		if (symArray[i].idterm == term)
+			return i; 
+	}
+	return -1; 
+}
+
 void Parser::populate_symbols() {
 	//Non terminals 21
 	for (int i = 0; i <= static_cast<int>(Opmul); i++) {
@@ -99,8 +170,8 @@ void Parser::populate_symbols() {
 		symArray[i].isTerm = true;
 	}
 	symArray[21].idterm = kwdprog; 
-	symArray[22].idterm = brace1;
-	symArray[23].idterm = brace2;
+	symArray[22].idterm = bracket1;
+	symArray[23].idterm = bracket2;
 	symArray[24].idterm = parens1;
 	symArray[25].idterm = parens2;
 	symArray[26].idterm = semi;
@@ -300,20 +371,22 @@ void Parser::populate_rules() {
 	grammerRules[38].LHS = 20;
 	grammerRules[38].RHS[0] = 43;
 	grammerRules[38].numKids = 1;
-	
+
+	grammerRules[39].LHS = 11;
+	grammerRules[39].numKids = 0;	
 }
 
 void Parser::populate_LLmatrix() {
 	//the output is the rules index for grammerRules 
 	table[Pgm][kwdprog] = 1;
-	table[Block][brace1] = 2;
+	table[Block][bracket1] = 2;
 
 	table[Stmts][kwdprint] = 3;
 	table[Stmts][kwdif] = 3;
 	table[Stmts][kwdwhile] = 3;
 	table[Stmts][ident] = 3;
 
-	table[Stmts][brace2] = 4;	
+	table[Stmts][bracket2] = 4;
 	table[Stmts][eof] = 4;
 
 	table[Stmt][ident] = 5;
@@ -344,6 +417,7 @@ void Parser::populate_LLmatrix() {
 	table[Else2][kwdelse] = 16;
 
 	table[Else2][eof] = 17;	
+	table[Else2][semi] = 17;
 
 	table[Elist][ident] = 18;
 	table[Elist][integer] = 18;
@@ -405,4 +479,34 @@ void Parser::populate_LLmatrix() {
 	table[Opmul][slash] = 37;
 
 	table[Opmul][caret] = 38;	
+
+	table[Elist2][parens2] = 20;
+}
+
+string Parser::nonTerm(Non_Terminals x ) {
+	switch (x)
+	{
+	case Pgm: 					return "Pgm";
+	case Block: 				return "Block";
+	case Stmts: 				return "Stmts";
+	case Stmt: 					return "Stmt";
+	case Astmt:					return "Astmt";
+	case Y: 					return "Y";
+	case Ostmt: 				return 	"Ostmt";
+	case Wstmt:					return	"Wstmt";
+	case Fstmt: 				return	"Fstmt";
+	case Else2: 				return	"Else2";
+	case Elist: 				return 	"Elist";
+	case Elist2: 				return 	"Elist2";
+	case X: 					return	"X";
+	case E: 					return 	"E";
+	case T: 					return	"T";
+	case Z: 					return 	"Z";
+	case F: 					return 	"F";
+	case Pexpr: 				return	"Pexpr";
+	case Fatom: 				return	"Fatom";
+	case Opadd: 				return 	"Opadd";
+	case Opmul: 				return 	"OpMul";
+	default: return "terminal"; 
+	}
 }

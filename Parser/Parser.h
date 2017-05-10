@@ -52,24 +52,28 @@ public:
 	Parser();
 	~Parser();
 	void createPST(); 
-
+	void printTree();
 private:
 
-	map<enum Non_Terminals, map<enum idType, int>> table; //LL Matrix
-														//returns the index for rules array
-	stack<Node> stackParser;	//Stack for parsing
-	
+	map<enum Non_Terminals, map<int, int> > table; //LL Matrix
+	//returns the index for rules array
+	stack<Node*> stackParser;	//Stack for parsing
+
 	Node* grandma; //node pointing to root node	
 	Node* tracker; //node pointing to top of stack 
 
 	symbols* symArray = new symbols[45];
-	rules* grammerRules = new rules[40];	
+	symbols* idInfo = new symbols[50]; //array to keep all the new ident created. 
+	rules* grammerRules = new rules[40];
 	//input for parser : token * tokenStream = new token[maxtokens];
 
 	//we have to populate the rules 
-	void populate_symbols(); 
+	void populate_symbols();
 	void populate_rules();
 	void populate_LLmatrix();
+	void printTreeHelper(Node* current);
+	int getSymInx(int term); 
+	string nonTerm(Non_Terminals x);
 
 };
 
