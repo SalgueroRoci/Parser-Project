@@ -45,7 +45,7 @@ void Lexer::addTokens() {
 		if (token == stringType || token == ident || token == integer || token == floatInt)
 			tokenStream[numTokens].hasVal = true;
 		numTokens++;
-		//cout << "lexeme: \"" << lexme << "\"   token: " << tokenType(token) << endl;
+		cout << "lexeme: \"" << lexme << "\"   token: " << tokenType(token) << endl;
 	} while (inputFile.good());
 }
 
@@ -59,7 +59,7 @@ void Lexer::getChar()
 {
 	//gets acharacters from the file 
 	nextChar = inputFile.get();
-
+	//cout << "char read: " << nextChar << endl; 
 	charClass = error;
 
 	if ((nextChar > 64 && nextChar <91) || (nextChar > 96 && nextChar <123))
@@ -91,7 +91,7 @@ void Lexer::getChar()
 
 void Lexer::addChar()
 {
-	lexme += nextChar;
+	lexme += nextChar; 
 }
 
 int Lexer::lex()
@@ -103,7 +103,7 @@ int Lexer::lex()
 
 	//start checking what kind of character it is 
 	if (charClass == space) { return space; }
-	if (charClass == error) { addChar(); return error; }
+	if (charClass == error) { return error; }
 	if (charClass == NULL) { return eof; }
 	if (charClass == newLine) { return newLine; }
 
@@ -134,6 +134,12 @@ int Lexer::lex()
 		{
 			addChar();
 			getChar();
+			if (charClass == letter || charClass == digit || charClass == underScore)
+				continue;
+			else {
+				rewindChar();
+				break;
+			}
 		}
 		return ident;
 		break;
@@ -143,6 +149,12 @@ int Lexer::lex()
 		{
 			addChar();
 			getChar();
+			if (charClass == letter || charClass == digit || charClass == underScore)
+				continue;
+			else {
+				rewindChar();
+				break;
+			}
 		}
 
 		//check if keyword
@@ -213,6 +225,12 @@ int Lexer::lex()
 		while (charClass == digit) {
 			addChar();
 			getChar();
+			if (charClass == digit)
+				continue;
+			else {
+				rewindChar();
+				break;
+			}
 		}
 
 		//check if floating point 
@@ -229,6 +247,12 @@ int Lexer::lex()
 			do {
 				addChar();
 				getChar();
+				if (charClass == digit)
+					continue;
+				else {
+					rewindChar();
+					break;
+				}
 			} while (charClass == digit);
 			return floatInt;
 		}

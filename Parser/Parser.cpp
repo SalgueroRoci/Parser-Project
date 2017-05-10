@@ -380,6 +380,8 @@ void Parser::populate_rules() {
 void Parser::populate_LLmatrix() {
 	//the output is the rules index for grammerRules 
 	table[Pgm][kwdprog] = 1;
+	table[Pgm][eof] = 1;
+
 	table[Block][bracket1] = 2;
 
 	table[Stmts][kwdprint] = 3;
@@ -388,7 +390,6 @@ void Parser::populate_LLmatrix() {
 	table[Stmts][ident] = 3;
 
 	table[Stmts][bracket2] = 4;
-	table[Stmts][eof] = 4;
 
 	table[Stmt][ident] = 5;
 
@@ -402,6 +403,7 @@ void Parser::populate_LLmatrix() {
 
 	table[Y][kwdinput] = 10;
 
+	table[Y][parens1] = 11;
 	table[Y][ident] = 11;
 	table[Y][integer] = 11;
 	table[Y][floatInt] = 11;
@@ -417,25 +419,26 @@ void Parser::populate_LLmatrix() {
 
 	table[Else2][kwdelse] = 16;
 
-	table[Else2][eof] = 17;	
 	table[Else2][semi] = 17;
 
 	table[Elist][ident] = 18;
 	table[Elist][integer] = 18;
 	table[Elist][floatInt] = 18;
 	table[Elist][stringType] = 18;
+	table[Elist][parens1] = 18;
 
 	table[Elist][parens2] = 19;
 
 	table[Elist2][comma] = 20;
 
-	table[X][parens2] = 21;
+	table[X][semi] = 21;
 	table[X][comma] = 21;
-	table[X][eof] = 21;
+	table[X][parens2] = 21;
 
 	table[X][idType::plus] = 22;
 	table[X][idType::minus] = 22;	
 
+	table[E][parens1] = 23;
 	table[E][ident] = 23;
 	table[E][integer] = 23;
 	table[E][floatInt] = 23;
@@ -443,7 +446,9 @@ void Parser::populate_LLmatrix() {
 
 	table[Z][idType::plus] = 24;
 	table[Z][idType::minus] = 24;
-	table[Z][eof] = 24;
+	table[Z][parens2] = 24;
+	table[Z][comma] = 24;
+	table[Z][semi] = 24;
 
 	table[Z][aster] = 25;
 	table[Z][slash] = 25;
@@ -453,6 +458,7 @@ void Parser::populate_LLmatrix() {
 	table[T][integer] = 26;
 	table[T][floatInt] = 26;
 	table[T][stringType] = 26;
+	table[T][parens1] = 26;
 
 	table[F][ident] = 27;
 	table[F][integer] = 27;
@@ -481,7 +487,7 @@ void Parser::populate_LLmatrix() {
 
 	table[Opmul][caret] = 38;	
 
-	table[Elist2][parens2] = 20;
+	table[Elist2][parens2] = 39;
 }
 
 string Parser::nonTerm(Non_Terminals x ) {
