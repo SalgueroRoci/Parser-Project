@@ -4,12 +4,12 @@
 *	Programmers:
 * 		Naveena Chilukuri 	Email: naveenac@csu.fullerton.edu
 *		Rocio Salguero 		Email: salgueroroci@csu.fullerton.edu
-		Cameron: Email: haipayazoo@gmail.com
+		Cameron:			Email: haipayazoo@gmail.com
 
 * 	Date Created: 04/27/17
-*	Description: 
+*	Description: Creates a PST and converts PST to AST 
 *
-* 	Last Modified: 04/27/17 
+* 	Last Modified: 05/11/17 
 */
 
 #include "Parser.h"
@@ -35,11 +35,11 @@ void Parser::createPST() {
 		//Points to the top of the stack
 		tracker = (stackParser.top());
 
-		std::cout << "top of stack:" << nonTerm(symArray[tracker->sym].idnon) << " top of input: " << tokenType(tokenStream[currentToken].type) << std::endl;
+		//std::cout << "top of stack:" << nonTerm(symArray[tracker->sym].idnon) << " top of input: " << tokenType(tokenStream[currentToken].type) << std::endl;
 
 		//If the top of the stack is a terminal
 		if (symArray[tracker->sym].isTerm == true) {
-			std::cout << "top of stack term:" << tokenType(symArray[tracker->sym].idterm) << endl; 
+			//std::cout << "top of stack term:" << tokenType(symArray[tracker->sym].idterm) << endl; 
 
 			//If the terminal on the stack doesn't match the input then it exits
 			if (symArray[tracker->sym].idterm != tokenStream[currentToken].type) {
@@ -66,7 +66,7 @@ void Parser::createPST() {
 			rule = table[symArray[tracker->sym].idnon][symArray[t].idterm];
 
 			//std::cout << symArray[tracker->sym].idnon << " " << t << endl;
-			std::cout << " rule: " << rule << endl; 
+			//std::cout << " rule: " << rule << endl; 
 
 			//If the cell in the LL Parse Matrix is empty
 			if (rule == 0) {
@@ -159,7 +159,7 @@ void Parser::printSymbolTable() {
 		cout << "Name of Symbol:\t" << symTable[i].name << endl;
 		cout << "Number of Times Symbol Occurs\t" << symTable[i].ix << endl;
 		for (int j = 0; j < symTable[i].ix; j++) {
-			cout << "Occurence " << j << ":" << endl;
+			cout << "Occurence " << j+1 << ":" << endl;
 			cout << "\tLine Number: " << symTable[i].occurences[j].line_num << endl;
 			cout << "\tDefined? " << symTable[i].occurences[j].is_def << endl;
 		}
@@ -415,7 +415,7 @@ void Parser::yacccode(Node* current) {
 
 void Parser::copyGuts(Node* node1, Node* node2) {
 	int rest = node2->numofKids;
-	cout << "gutted: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl;
+	//cout << "gutted: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl;
 
 	//copy kids
 	for (int i = 0; i < node2->numofKids; i++)
@@ -427,7 +427,7 @@ void Parser::copyGuts(Node* node1, Node* node2) {
 
 	node1->numofKids = node2->numofKids;
 	node1->sym = node2->sym; 
-	cout << "New: " << tokenType(symArray[node1->sym].idterm) << " num of kids: " << node1->numofKids << endl; 
+	//cout << "New: " << tokenType(symArray[node1->sym].idterm) << " num of kids: " << node1->numofKids << endl; 
 }
 
 Parser::Parser() {

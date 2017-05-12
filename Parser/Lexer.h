@@ -8,7 +8,7 @@
 * 	Date Created: 02/19/17
 *	Description: Lexer program which reads in a file and seperates the contents into significant tokens.
 *
-* 	Last Modified: 02/09/17
+* 	Last Modified: 05/11/17
 */
 
 #if !defined(_LA_)

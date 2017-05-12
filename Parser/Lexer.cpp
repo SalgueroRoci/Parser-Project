@@ -4,11 +4,11 @@
 *	Programmers:
 * 		Naveena Chilukuri 	Email: naveenac@csu.fullerton.edu
 *		Rocio Salguero 		Email: salgueroroci@csu.fullerton.edu
-*   Website to edit: https://kobra.io/#/e/-KdZ6nINv9kx4AselJIJ
+
 * 	Date Created: 02/19/17
 *	Description: Lexer program which reads in a file and seperates the contents into significant tokens.
 *
-* 	Last Modified: 02/22/17 : working and compiled file!
+* 	Last Modified: 05/11/17 : working and compiled file!
 */
 
 #include "Lexer.h"
