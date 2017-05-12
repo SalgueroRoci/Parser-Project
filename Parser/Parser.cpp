@@ -35,7 +35,7 @@ void Parser::createPST() {
 		//Points to the top of the stack
 		tracker = (stackParser.top());
 
-		std::cout << "top of stack:" << nonTerm(symArray[tracker->sym].idnon) << " top of input: " << tokenType(tokenStream[currentToken].type) << std::endl;
+		//std::cout << "top of stack:" << nonTerm(symArray[tracker->sym].idnon) << " top of input: " << tokenType(tokenStream[currentToken].type) << std::endl;
 
 		//If the top of the stack is a terminal
 		if (symArray[tracker->sym].isTerm == true) {
@@ -49,6 +49,7 @@ void Parser::createPST() {
 			else {
 				if (symArray[tracker->sym].idterm == ident) {
 					//Add to symbol table
+					addtoSymTable(tokenStream[currentToken], currentToken + 1);
 				}
 
 				//Pop the node off the stack
@@ -64,7 +65,7 @@ void Parser::createPST() {
 			rule = table[symArray[tracker->sym].idnon][symArray[t].idterm];
 
 			//std::cout << symArray[tracker->sym].idnon << " " << t << endl;
-			std::cout << " rule: " << rule << endl; 
+			//std::cout << " rule: " << rule << endl; 
 
 			//If the cell in the LL Parse Matrix is empty
 			if (rule == 0) {
@@ -113,6 +114,55 @@ void Parser::createPST() {
 
 	std::cout << "No errors, grammar fine! PST created" << endl;
 
+}//end of createPST
+
+void Parser::addtoSymTable(token symbol, int nextToken) {
+	bool found = false;
+
+
+	for (int i = 0; i < num_of_sym; i++) {
+		if (symbol.value == symTable[i].name) {
+			symTable[i].occurences[symTable[i].ix].line_num = symbol.lineNum;
+			if (tokenStream[nextToken].type == idType::equal) {
+				symTable[i].occurences[symTable[i].ix].is_def = true;
+
+			}
+			else {
+				symTable[i].occurences[symTable[i].ix].is_def = false;
+			}
+			symTable[i].ix++;
+			found = true;
+		}
+	}
+
+	if (!found) {
+		symTable[num_of_sym].ix = 1;
+		symTable[num_of_sym].name = symbol.value;
+		symTable[num_of_sym].occurences[0].line_num = symbol.lineNum;
+
+		if (tokenStream[nextToken].type == idType::equal) {
+			symTable[num_of_sym].occurences[0].is_def = true;
+		}
+		else {
+			symTable[num_of_sym].occurences[0].is_def = false;
+		}
+		num_of_sym++;
+	}
+
+}//end of func
+
+void Parser::printSymbolTable() {
+	cout << "Printing Symbol Table" << endl;
+
+	for (int i = 0; i < num_of_sym; i++) {
+		cout << "Name of Symbol:\t" << symTable[i].name << endl;
+		cout << "Number of Times Symbol Occurs\t" << symTable[i].ix << endl;
+		for (int j = 0; j < symTable[i].ix; j++) {
+			cout << "Occurence " << j << ":" << endl;
+			cout << "\tLine Number: " << symTable[i].occurences[j].line_num << endl;
+			cout << "\tDefined? " << symTable[i].occurences[j].is_def << endl;
+		}
+	}
 }
 
 void Parser::printTree() {
@@ -124,22 +174,256 @@ void Parser::printTreeHelper(Node* currentNode) {
 	if (currentNode == NULL) return; 
 
 	if (symArray[currentNode->sym].isTerm == false) {
-		cout << "(Node:" << nonTerm(symArray[currentNode->sym].idnon);
+		cout << "\n( Node:" << nonTerm(symArray[currentNode->sym].idnon);
 	}
 	else {
-		cout << "(Node:" << tokenType(symArray[currentNode->sym].idterm);
+		cout << "\n( Node:" << tokenType(symArray[currentNode->sym].idterm);
 	}
 	
 
 	for (int i = 0; i < currentNode->numofKids; i++)
 		printTreeHelper(currentNode->kids[i]);
-	cout << ")" ; //end of a branch
+	cout << ") "  ; //end of a branch
+}
+
+void Parser::createAST() {
+	traversePost(grandma); 
+}
+
+void Parser::traversePost(Node* current) {
+	if (current == NULL) return;
+
+	for (int i = 0; i < current->numofKids; i++)
+		traversePost(current->kids[i]);
+	
+	//post order 
+	if (symArray[current->sym].isTerm == false) {
+		//cout << "Traverse node:" << nonTerm(symArray[current->sym].idnon) << " num kids: " << current->numofKids << endl;
+		yacccode(current); 
+	}	
+	else {
+		//cout << "Traverse node:" << tokenType(symArray[current->sym].idterm) << " num kids: " << current->numofKids << endl;
+	}
+}
+
+void Parser::yacccode(Node* current) {
+	Non_Terminals value = symArray[current->sym].idnon;
+
+	switch (value) {
+	case Pgm:
+		current->kids[0]->kids[0] = current->kids[1];
+		current->kids[0]->numofKids = 1; 
+		copyGuts(current, current->kids[0]);
+
+		break;
+	case Block:
+		copyGuts(current, current->kids[1]);
+		break;
+	case Stmts:
+		if (current->numofKids == 0) {
+			
+		}
+		else {
+			if (current->kids[2]->numofKids == 0) {
+				current->kids[1]->kids[0] = current->kids[0];
+				current->kids[1]->numofKids = 1;
+				copyGuts(current, current->kids[1]);
+			}
+			else {
+				current->kids[1]->kids[0] = current->kids[0];
+				current->kids[1]->kids[1] = current->kids[2];
+				current->kids[1]->numofKids = 2;
+				copyGuts(current, current->kids[1]);
+			}
+		}
+		break;
+	case Stmt:
+		if (current->numofKids == 0) {
+		
+		}
+		else
+			copyGuts(current, current->kids[0]);
+		break;
+	case Astmt:
+		current->kids[1]->kids[0] = current->kids[0];
+		current->kids[1]->kids[1] = current->kids[2];
+		current->kids[1]->numofKids = 2;
+		copyGuts(current, current->kids[1]);
+		break;
+	case Y:		
+		copyGuts(current, current->kids[0]);
+		break;
+	case Ostmt:
+		if (current->kids[2]->numofKids == 0) {
+
+		}
+		else {
+			current->kids[0]->kids[0] = current->kids[0];
+			current->kids[0]->numofKids = 1;
+		}
+			copyGuts(current, current->kids[0]);
+		
+		break;
+	case Wstmt:
+		current->kids[0]->kids[0] = current->kids[1];
+		current->kids[0]->kids[1] = current->kids[2];
+		current->kids[0]->numofKids = 2;
+		copyGuts(current, current->kids[0]);
+		break;
+	case Fstmt:
+		if (current->kids[3]->numofKids == 0) {
+			current->kids[0]->kids[0] = current->kids[1];
+			current->kids[0]->kids[1] = current->kids[2];
+			current->kids[0]->numofKids = 2;
+		}
+		else {
+			current->kids[0]->kids[0] = current->kids[1];
+			current->kids[0]->kids[1] = current->kids[2];
+			current->kids[0]->kids[2] = current->kids[3];
+			current->kids[0]->numofKids = 3;
+		}		
+		copyGuts(current, current->kids[0]);
+		break;
+	case Else2:
+		if (current->numofKids == 0)
+		{		}
+		else if(current->numofKids == 2 ) {
+			current->kids[0]->kids[0] = current->kids[1];
+			current->kids[0]->numofKids = 1;
+			copyGuts(current, current->kids[0]);
+		}
+		else {
+			current->kids[0]->kids[0] = current->kids[1];
+			current->kids[0]->kids[1] = current->kids[2];
+			if (current->kids[3]->numofKids == 0) {
+				current->kids[0]->numofKids = 2;
+			} 
+			else {
+				current->kids[0]->kids[2] = current->kids[3];
+				current->kids[0]->numofKids = 3;
+			}
+			
+			copyGuts(current, current->kids[0]);
+		}
+		break;
+	case Elist:
+		if (current->numofKids == 0)
+		{
+		}
+		else {
+			if (current->kids[1]->numofKids == 0)
+			{
+				current->kids[0]->numofKids = 0;
+			}
+			else {
+				current->kids[0]->kids[0] = current->kids[1];
+				current->kids[0]->numofKids = 1;
+			}			
+			copyGuts(current, current->kids[0]);
+		}
+		break;
+	case Elist2:
+		if (current->numofKids == 0) {
+		}
+		else {
+			if (current->kids[1]->numofKids != 0) {
+				current->kids[0]->kids[0] = current->kids[1];
+				current->kids[0]->numofKids = 1;
+			}
+			copyGuts(current, current->kids[0]);
+		}
+		break;
+	case X:
+		if (current->numofKids == 0) {
+		} 
+		else {
+			if (current->kids[2]->numofKids == 0) {
+				current->kids[0]->kids[0] = current->kids[1];
+				current->kids[0]->numofKids = 1;
+			} 
+			else {
+				current->kids[0]->kids[0] = current->kids[1];
+				current->kids[0]->kids[1] = current->kids[2];
+				current->kids[0]->numofKids = 2;
+			}
+			copyGuts(current, current->kids[0]);
+		}
+		break;
+	case E:
+		if (current->kids[1]->numofKids != 0) {
+			current->kids[0]->kids[0] = current->kids[1];
+			current->kids[0]->numofKids = 1;
+			copyGuts(current, current->kids[0]);
+		}
+		else {
+			copyGuts(current, current->kids[0]);
+		}
+		break;
+	case T:		
+		if (current->kids[1]->numofKids == 0) {
+			copyGuts(current, current->kids[0]);
+		}
+		else {
+			current->kids[1]->kids[0] = current->kids[0];
+			current->kids[1]->numofKids = 1;
+			copyGuts(current, current->kids[1]);			
+		}
+		
+		break;
+	case Z:
+		if (current->numofKids == 0) {
+		}
+		else {
+			current->kids[0]->kids[0] = current->kids[1]; 
+			current->kids[0]->numofKids = 1;
+			if (current->kids[2]->numofKids != 0) {
+				current->kids[0]->kids[1] = current->kids[2];
+				current->kids[0]->numofKids = 2;
+			}
+			copyGuts(current, current->kids[0]);
+		}
+		break;
+	case F:
+		copyGuts(current, current->kids[0]);
+		break;
+	case Pexpr:
+		copyGuts(current, current->kids[0]);
+		break;
+	case Fatom:
+		copyGuts(current, current->kids[0]);
+		break;
+	case Opadd:
+		copyGuts(current, current->kids[0]);
+		break;
+	case Opmul:
+		copyGuts(current, current->kids[0]); 
+		break;
+	default: return;
+	}
+}
+
+void Parser::copyGuts(Node* node1, Node* node2) {
+	int rest = node2->numofKids;
+	//cout << "gutted: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl;
+
+	//copy kids
+	for (int i = 0; i < node2->numofKids; i++)
+		node1->kids[i] = node2->kids[i];
+
+	//void the rest of the kids if node1 has more kids than node2
+	for (int i = rest; i < 10; i++)
+		node1->kids[i] = NULL;
+
+	node1->numofKids = node2->numofKids;
+	node1->sym = node2->sym; 
+	//cout << "New: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl;
 }
 
 Parser::Parser() {
 	populate_symbols();
 	populate_rules();
 	populate_LLmatrix();
+	num_of_sym = 0; 
 	//add eof to the end of tokenStream 
 }
 
@@ -147,6 +431,7 @@ Parser::~Parser() {
 	delete[] symArray; 
 	delete[] grammerRules;
 	delete[] tokenStream;
+	delete[] symTable; 
 }
 
 int Parser::getSymInx(int term) {

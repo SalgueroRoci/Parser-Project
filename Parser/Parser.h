@@ -46,6 +46,21 @@ struct Node {
 	int numofKids;
 };
 
+struct occurence {
+	int line_num;
+	bool is_def;
+};
+
+struct table_symbol {
+	string name;
+	double value_dbl;
+	string value_str;
+	bool is_num;
+	int ix;
+	occurence occurences[10];
+
+};
+
 class Parser : public Lexer
 {
 public:
@@ -53,6 +68,8 @@ public:
 	~Parser();
 	void createPST(); 
 	void printTree();
+	void createAST(); 
+	void printSymbolTable();
 private:
 
 	map<enum Non_Terminals, map<int, int> > table; //LL Matrix
@@ -67,6 +84,9 @@ private:
 	rules* grammerRules = new rules[40];
 	//input for parser : token * tokenStream = new token[maxtokens];
 
+	table_symbol* symTable = new table_symbol[50];
+	int num_of_sym; 
+
 	//we have to populate the rules 
 	void populate_symbols();
 	void populate_rules();
@@ -74,6 +94,12 @@ private:
 	void printTreeHelper(Node* current);
 	int getSymInx(int term); 
 	string nonTerm(Non_Terminals x);
+
+	void addtoSymTable(token symbol, int nextToken);
+
+	void traversePost(Node* current);
+	void yacccode(Node* current);
+	void copyGuts(Node* node1, Node* node2);
 
 };
 

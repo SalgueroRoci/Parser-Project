@@ -31,11 +31,16 @@ int main() {
 		parme.addTokens();
 		parme.print_tokens();
 		parme.close_file();
-		parme.createPST();
-		parme.printTree(); 
 
 		//start parsing 
-
+		parme.createPST();
+		cout << "\nPrinting PST: "; 
+		parme.printTree();		
+		parme.createAST();
+		cout << "\nPrinting AST: ";
+		parme.printTree();	
+		cout << "\nPringting Sym table: \n";
+		parme.printSymbolTable();
 	}
 	catch (std::ifstream::failure e) {
 		std::cerr << "Exception opening/reading/closing file\n";

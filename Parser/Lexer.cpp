@@ -45,7 +45,7 @@ void Lexer::addTokens() {
 		if (token == stringType || token == ident || token == integer || token == floatInt)
 			tokenStream[numTokens].hasVal = true;
 		numTokens++;
-		cout << "lexeme: \"" << lexme << "\"   token: " << tokenType(token) << endl;
+		//cout << "lexeme: \"" << lexme << "\"   token: " << tokenType(token) << endl;
 	} while (inputFile.good());
 }
 
