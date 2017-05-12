@@ -35,10 +35,11 @@ void Parser::createPST() {
 		//Points to the top of the stack
 		tracker = (stackParser.top());
 
-		//std::cout << "top of stack:" << nonTerm(symArray[tracker->sym].idnon) << " top of input: " << tokenType(tokenStream[currentToken].type) << std::endl;
+		std::cout << "top of stack:" << nonTerm(symArray[tracker->sym].idnon) << " top of input: " << tokenType(tokenStream[currentToken].type) << std::endl;
 
 		//If the top of the stack is a terminal
 		if (symArray[tracker->sym].isTerm == true) {
+			std::cout << "top of stack term:" << tokenType(symArray[tracker->sym].idterm) << endl; 
 
 			//If the terminal on the stack doesn't match the input then it exits
 			if (symArray[tracker->sym].idterm != tokenStream[currentToken].type) {
@@ -65,7 +66,7 @@ void Parser::createPST() {
 			rule = table[symArray[tracker->sym].idnon][symArray[t].idterm];
 
 			//std::cout << symArray[tracker->sym].idnon << " " << t << endl;
-			//std::cout << " rule: " << rule << endl; 
+			std::cout << " rule: " << rule << endl; 
 
 			//If the cell in the LL Parse Matrix is empty
 			if (rule == 0) {
@@ -172,18 +173,18 @@ void Parser::printTree() {
 
 void Parser::printTreeHelper(Node* currentNode) {
 	if (currentNode == NULL) return; 
-
+	cout << "\n( ";
 	if (symArray[currentNode->sym].isTerm == false) {
-		cout << "\n( Node:" << nonTerm(symArray[currentNode->sym].idnon);
+		cout << "Node:" << nonTerm(symArray[currentNode->sym].idnon);
 	}
 	else {
-		cout << "\n( Node:" << tokenType(symArray[currentNode->sym].idterm);
+		cout << "Node:" << tokenType(symArray[currentNode->sym].idterm);
 	}
 	
 
 	for (int i = 0; i < currentNode->numofKids; i++)
 		printTreeHelper(currentNode->kids[i]);
-	cout << ") "  ; //end of a branch
+	cout << ")"  ; //end of a branch
 }
 
 void Parser::createAST() {
@@ -220,11 +221,11 @@ void Parser::yacccode(Node* current) {
 		copyGuts(current, current->kids[1]);
 		break;
 	case Stmts:
-		if (current->numofKids == 0) {
+		if (current->numofKids == 0 ) {
 			
 		}
 		else {
-			if (current->kids[2]->numofKids == 0) {
+			if (current->kids[2]->numofKids == 0 && symArray[current->kids[2]->sym].isTerm == false) {
 				current->kids[1]->kids[0] = current->kids[0];
 				current->kids[1]->numofKids = 1;
 				copyGuts(current, current->kids[1]);
@@ -254,7 +255,7 @@ void Parser::yacccode(Node* current) {
 		copyGuts(current, current->kids[0]);
 		break;
 	case Ostmt:
-		if (current->kids[2]->numofKids == 0) {
+		if (current->kids[2]->numofKids == 0 && symArray[current->kids[2]->sym].isTerm == false) {
 
 		}
 		else {
@@ -271,7 +272,7 @@ void Parser::yacccode(Node* current) {
 		copyGuts(current, current->kids[0]);
 		break;
 	case Fstmt:
-		if (current->kids[3]->numofKids == 0) {
+		if (current->kids[3]->numofKids == 0 && symArray[current->kids[3]->sym].isTerm == false) {
 			current->kids[0]->kids[0] = current->kids[1];
 			current->kids[0]->kids[1] = current->kids[2];
 			current->kids[0]->numofKids = 2;
@@ -295,7 +296,7 @@ void Parser::yacccode(Node* current) {
 		else {
 			current->kids[0]->kids[0] = current->kids[1];
 			current->kids[0]->kids[1] = current->kids[2];
-			if (current->kids[3]->numofKids == 0) {
+			if (current->kids[3]->numofKids == 0 && symArray[current->kids[3]->sym].isTerm == false) {
 				current->kids[0]->numofKids = 2;
 			} 
 			else {
@@ -311,33 +312,36 @@ void Parser::yacccode(Node* current) {
 		{
 		}
 		else {
-			if (current->kids[1]->numofKids == 0)
-			{
-				current->kids[0]->numofKids = 0;
+			if (current->kids[1]->numofKids == 0 && symArray[current->kids[1]->sym].isTerm == false) {
+				copyGuts(current, current->kids[0]);
 			}
 			else {
-				current->kids[0]->kids[0] = current->kids[1];
-				current->kids[0]->numofKids = 1;
-			}			
-			copyGuts(current, current->kids[0]);
+				current->kids[1]->kids[0] = current->kids[0];
+				current->kids[1]->numofKids = 1;
+				copyGuts(current, current->kids[1]);
+			}
 		}
 		break;
 	case Elist2:
 		if (current->numofKids == 0) {
 		}
 		else {
-			if (current->kids[1]->numofKids != 0) {
+			if (current->kids[1]->numofKids == 0 && symArray[current->kids[1]->sym].isTerm == false) {
+				copyGuts(current, current->kids[0]);
+			}
+			else {
 				current->kids[0]->kids[0] = current->kids[1];
 				current->kids[0]->numofKids = 1;
+				copyGuts(current, current->kids[0]);
 			}
-			copyGuts(current, current->kids[0]);
+			
 		}
 		break;
 	case X:
 		if (current->numofKids == 0) {
 		} 
 		else {
-			if (current->kids[2]->numofKids == 0) {
+			if (current->kids[2]->numofKids == 0 && symArray[current->kids[2]->sym].isTerm == false) {
 				current->kids[0]->kids[0] = current->kids[1];
 				current->kids[0]->numofKids = 1;
 			} 
@@ -350,7 +354,7 @@ void Parser::yacccode(Node* current) {
 		}
 		break;
 	case E:
-		if (current->kids[1]->numofKids != 0) {
+		if (current->kids[1]->numofKids != 0 || symArray[current->kids[1]->sym].isTerm == true) {
 			current->kids[0]->kids[0] = current->kids[1];
 			current->kids[0]->numofKids = 1;
 			copyGuts(current, current->kids[0]);
@@ -360,7 +364,7 @@ void Parser::yacccode(Node* current) {
 		}
 		break;
 	case T:		
-		if (current->kids[1]->numofKids == 0) {
+		if (current->kids[1]->numofKids == 0 && symArray[current->kids[1]->sym].isTerm == false) {
 			copyGuts(current, current->kids[0]);
 		}
 		else {
@@ -404,7 +408,7 @@ void Parser::yacccode(Node* current) {
 
 void Parser::copyGuts(Node* node1, Node* node2) {
 	int rest = node2->numofKids;
-	//cout << "gutted: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl;
+	cout << "gutted: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl;
 
 	//copy kids
 	for (int i = 0; i < node2->numofKids; i++)
@@ -416,7 +420,7 @@ void Parser::copyGuts(Node* node1, Node* node2) {
 
 	node1->numofKids = node2->numofKids;
 	node1->sym = node2->sym; 
-	//cout << "New: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl;
+	cout << "New: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl; 
 }
 
 Parser::Parser() {
@@ -535,7 +539,7 @@ void Parser::populate_rules() {
 	grammerRules[12].LHS = 6;
 	grammerRules[12].RHS[0] = 29;
 	grammerRules[12].RHS[1] = 24;
-	grammerRules[12].RHS[2] = 13;
+	grammerRules[12].RHS[2] = 10;
 	grammerRules[12].RHS[3] = 25;
 	grammerRules[12].numKids = 4;
 
@@ -799,6 +803,6 @@ string Parser::nonTerm(Non_Terminals x ) {
 	case Fatom: 				return	"Fatom";
 	case Opadd: 				return 	"Opadd";
 	case Opmul: 				return 	"OpMul";
-	default: return "terminal"; 
+	default: return "terminal";
 	}
 }
