@@ -39,8 +39,8 @@ int main() {
 		parme.createAST();
 		cout << "\nPrinting AST: ";
 		parme.printTree();	
-		//cout << "\nPringting Sym table: \n";
-		//parme.printSymbolTable();
+		cout << "\nPringting Sym table: \n";
+		parme.printSymbolTable();
 	}
 	catch (std::ifstream::failure e) {
 		std::cerr << "Exception opening/reading/closing file\n";

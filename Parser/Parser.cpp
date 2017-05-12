@@ -624,7 +624,7 @@ void Parser::populate_rules() {
 	grammerRules[27].numKids = 1;
 
 	grammerRules[28].LHS = 16;
-	grammerRules[28].RHS[0] = 18;
+	grammerRules[28].RHS[0] = 17;
 	grammerRules[28].numKids = 1;
 
 	grammerRules[29].LHS = 17;

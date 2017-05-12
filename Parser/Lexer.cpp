@@ -85,6 +85,7 @@ void Lexer::getChar()
 	if (nextChar == ' ') charClass = space;
 	if (nextChar == EOF) charClass = NULL;
 	if (nextChar == '\t') charClass = space;
+
 	if (nextChar == '\n') { lineCount++; charClass = newLine; } //keeps track of what line it was on
 
 }
@@ -234,16 +235,17 @@ int Lexer::lex()
 		}
 
 		//check if floating point 
+		getChar();
 		if (nextChar == '.') // is a floating point 
 		{
+			addChar(); 
 			getChar();
 			if (charClass != digit) {
+				rewindChar(); 
 				rewindChar(); //did not follow a number then return integer and retoken dot 
 				return integer;
 			}
-			//get the dot again
-			rewindChar(); rewindChar(); getChar();
-
+			
 			do {
 				addChar();
 				getChar();
@@ -255,6 +257,9 @@ int Lexer::lex()
 				}
 			} while (charClass == digit);
 			return floatInt;
+		}
+		else {
+			rewindChar(); 
 		}
 
 		return integer;
@@ -415,7 +420,7 @@ int Lexer::lex()
 void Lexer::print_tokens(){
 	cout << "(:lang A3 \n";
 	for (int i = 0; i < numTokens; i++) {
-		cout << "(:token " << tokenStream[i].lineNum << " " << tokenType(tokenStream[i].type) << " ";
+		cout << "(:token " << tokenStream[i].lineNum << " " << tokenType(tokenStream[i].type) ;
 		if (tokenStream[i].hasVal == true) //if token has a value pair  
 			cout << "str: \"" << tokenStream[i].value << "\" ";
 		cout << ")" << endl;
