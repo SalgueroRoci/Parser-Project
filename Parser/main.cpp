@@ -37,8 +37,8 @@ int main() {
 		cout << "\nPrinting PST: "; 
 		parme.printTree();		
 		parme.createAST();
-		//cout << "\nPrinting AST: ";
-		//parme.printTree();	
+		cout << "\nPrinting AST: ";
+		parme.printTree();	
 		//cout << "\nPringting Sym table: \n";
 		//parme.printSymbolTable();
 	}

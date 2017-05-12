@@ -221,8 +221,7 @@ void Parser::yacccode(Node* current) {
 		copyGuts(current, current->kids[1]);
 		break;
 	case Stmts:
-		if (current->numofKids == 0 ) {
-			
+		if (current->numofKids == 0 ) {			
 		}
 		else {
 			if (current->kids[2]->numofKids == 0 && symArray[current->kids[2]->sym].isTerm == false) {
@@ -239,8 +238,7 @@ void Parser::yacccode(Node* current) {
 		}
 		break;
 	case Stmt:
-		if (current->numofKids == 0) {
-		
+		if (current->numofKids == 0) {		
 		}
 		else
 			copyGuts(current, current->kids[0]);
@@ -256,13 +254,14 @@ void Parser::yacccode(Node* current) {
 		break;
 	case Ostmt:
 		if (current->kids[2]->numofKids == 0 && symArray[current->kids[2]->sym].isTerm == false) {
-
+			copyGuts(current, current->kids[0]);
 		}
 		else {
-			current->kids[0]->kids[0] = current->kids[0];
+			current->kids[0]->kids[0] = current->kids[2];
 			current->kids[0]->numofKids = 1;
-		}
 			copyGuts(current, current->kids[0]);
+		}
+			
 		
 		break;
 	case Wstmt:
@@ -276,38 +275,38 @@ void Parser::yacccode(Node* current) {
 			current->kids[0]->kids[0] = current->kids[1];
 			current->kids[0]->kids[1] = current->kids[2];
 			current->kids[0]->numofKids = 2;
+			copyGuts(current, current->kids[0]);
 		}
 		else {
 			current->kids[0]->kids[0] = current->kids[1];
 			current->kids[0]->kids[1] = current->kids[2];
 			current->kids[0]->kids[2] = current->kids[3];
 			current->kids[0]->numofKids = 3;
+			copyGuts(current, current->kids[0]);
 		}		
-		copyGuts(current, current->kids[0]);
+		
 		break;
 	case Else2:
 		if (current->numofKids == 0)
-		{		}
-		else if(current->numofKids == 2 ) {
-			current->kids[0]->kids[0] = current->kids[1];
-			current->kids[0]->numofKids = 1;
-			copyGuts(current, current->kids[0]);
+		{		
 		}
 		else {
-			current->kids[0]->kids[0] = current->kids[1];
-			current->kids[0]->kids[1] = current->kids[2];
-			if (current->kids[3]->numofKids == 0 && symArray[current->kids[3]->sym].isTerm == false) {
+			if (current->kids[3]->numofKids == 0 && symArray[current->kids[1]->sym].isTerm == false) {
+				current->kids[0]->kids[0] = current->kids[1];
+				current->kids[0]->kids[1] = current->kids[2];
 				current->kids[0]->numofKids = 2;
-			} 
+				copyGuts(current, current->kids[0]);
+			}
 			else {
+				current->kids[0]->kids[0] = current->kids[1];
+				current->kids[0]->kids[1] = current->kids[2];
 				current->kids[0]->kids[2] = current->kids[3];
 				current->kids[0]->numofKids = 3;
+				copyGuts(current, current->kids[0]);
 			}
-			
-			copyGuts(current, current->kids[0]);
 		}
 		break;
-	case Elist:
+	/*case Elist:
 		if (current->numofKids == 0)
 		{
 		}
@@ -316,13 +315,13 @@ void Parser::yacccode(Node* current) {
 				copyGuts(current, current->kids[0]);
 			}
 			else {
-				current->kids[1]->kids[0] = current->kids[0];
-				current->kids[1]->numofKids = 1;
+				current->kids[0]->kids[0] = current->kids[0];
+				current->kids[0]->numofKids = 1;
 				copyGuts(current, current->kids[1]);
 			}
 		}
 		break;
-	case Elist2:
+	*/case Elist2:
 		if (current->numofKids == 0) {
 		}
 		else {
@@ -344,24 +343,26 @@ void Parser::yacccode(Node* current) {
 			if (current->kids[2]->numofKids == 0 && symArray[current->kids[2]->sym].isTerm == false) {
 				current->kids[0]->kids[0] = current->kids[1];
 				current->kids[0]->numofKids = 1;
-			} 
+				copyGuts(current, current->kids[0]);
+			}
 			else {
 				current->kids[0]->kids[0] = current->kids[1];
 				current->kids[0]->kids[1] = current->kids[2];
 				current->kids[0]->numofKids = 2;
+				copyGuts(current, current->kids[0]);
 			}
-			copyGuts(current, current->kids[0]);
 		}
 		break;
 	case E:
-		if (current->kids[1]->numofKids != 0 || symArray[current->kids[1]->sym].isTerm == true) {
-			current->kids[0]->kids[0] = current->kids[1];
-			current->kids[0]->numofKids = 1;
+		if (current->kids[1]->numofKids == 0 && symArray[current->kids[1]->sym].isTerm == false) {
 			copyGuts(current, current->kids[0]);
 		}
 		else {
-			copyGuts(current, current->kids[0]);
+			current->kids[1]->kids[0] = current->kids[0];
+			current->kids[1]->numofKids = 1;
+			copyGuts(current, current->kids[1]);
 		}
+
 		break;
 	case T:		
 		if (current->kids[1]->numofKids == 0 && symArray[current->kids[1]->sym].isTerm == false) {
@@ -378,13 +379,19 @@ void Parser::yacccode(Node* current) {
 		if (current->numofKids == 0) {
 		}
 		else {
-			current->kids[0]->kids[0] = current->kids[1]; 
-			current->kids[0]->numofKids = 1;
-			if (current->kids[2]->numofKids != 0) {
+			//has two kids
+			if (current->kids[2]->numofKids == 0 && symArray[current->kids[2]->sym].isTerm == false) {
+				current->kids[0]->kids[0] = current->kids[1];
+				current->kids[0]->numofKids = 1;
+				copyGuts(current, current->kids[0]);
+			}
+			//has three kids
+			else {
+				current->kids[0]->kids[0] = current->kids[1];
 				current->kids[0]->kids[1] = current->kids[2];
 				current->kids[0]->numofKids = 2;
-			}
-			copyGuts(current, current->kids[0]);
+				copyGuts(current, current->kids[0]);
+			}			
 		}
 		break;
 	case F:
@@ -420,7 +427,7 @@ void Parser::copyGuts(Node* node1, Node* node2) {
 
 	node1->numofKids = node2->numofKids;
 	node1->sym = node2->sym; 
-	cout << "New: " << nonTerm(symArray[node1->sym].idnon) << " num of kids: " << node1->numofKids << endl; 
+	cout << "New: " << tokenType(symArray[node1->sym].idterm) << " num of kids: " << node1->numofKids << endl; 
 }
 
 Parser::Parser() {
