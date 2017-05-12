@@ -306,7 +306,7 @@ void Parser::yacccode(Node* current) {
 			}
 		}
 		break;
-	/*case Elist:
+	case Elist:
 		if (current->numofKids == 0)
 		{
 		}
@@ -315,13 +315,13 @@ void Parser::yacccode(Node* current) {
 				copyGuts(current, current->kids[0]);
 			}
 			else {
-				current->kids[0]->kids[0] = current->kids[0];
+				current->kids[0]->kids[0] = current->kids[1];
 				current->kids[0]->numofKids = 1;
-				copyGuts(current, current->kids[1]);
+				copyGuts(current, current->kids[0]);
 			}
 		}
 		break;
-	*/case Elist2:
+	case Elist2:
 		if (current->numofKids == 0) {
 		}
 		else {
