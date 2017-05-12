@@ -14,6 +14,22 @@
 
 #include "Parser.h"
 
+Parser::Parser() {
+	populate_symbols();
+	populate_rules();
+	populate_LLmatrix();
+	num_of_sym = 0;
+	ID = 0; 
+	//add eof to the end of tokenStream 
+}
+
+Parser::~Parser() {
+	delete[] symArray;
+	delete[] grammerRules;
+	delete[] tokenStream;
+	delete[] symTable;
+}
+
 void Parser::createPST() {
 
 	Node* pgm = new Node;
@@ -25,6 +41,7 @@ void Parser::createPST() {
 	//Add the PGM Node to the tree
 	pgm->sym = Pgm;
 	grandma = pgm;
+	pgm->uniqueID = ++ID;
 
 	//Adds the PGM Node onto the stack
 	stackParser.push(pgm);
@@ -82,9 +99,10 @@ void Parser::createPST() {
 
 				//Creates a the kids 
 				for (int i = 0; i < grammerRules[rule].numKids; i++) {
-					tracker->kids[i] = new Node;
+					tracker->kids[i] = new Node;					
 					tracker->kids[i]->sym = grammerRules[rule].RHS[i];
 					tracker->kids[i]->numofKids = 0;
+					tracker->kids[i]->uniqueID = ++ID;
 				}
 
 				tracker->numofKids = grammerRules[rule].numKids;
@@ -175,10 +193,10 @@ void Parser::printTreeHelper(Node* currentNode) {
 	if (currentNode == NULL) return; 
 	cout << "\n( ";
 	if (symArray[currentNode->sym].isTerm == false) {
-		cout << "Node:" << nonTerm(symArray[currentNode->sym].idnon);
+		cout << "Node:" << nonTerm(symArray[currentNode->sym].idnon) << " ID: " << currentNode->uniqueID;
 	}
 	else {
-		cout << "Node:" << tokenType(symArray[currentNode->sym].idterm);
+		cout << "Node:" << tokenType(symArray[currentNode->sym].idterm) << " ID: " << currentNode->uniqueID;
 	}
 	
 
@@ -430,20 +448,7 @@ void Parser::copyGuts(Node* node1, Node* node2) {
 	//cout << "New: " << tokenType(symArray[node1->sym].idterm) << " num of kids: " << node1->numofKids << endl; 
 }
 
-Parser::Parser() {
-	populate_symbols();
-	populate_rules();
-	populate_LLmatrix();
-	num_of_sym = 0; 
-	//add eof to the end of tokenStream 
-}
 
-Parser::~Parser() {
-	delete[] symArray; 
-	delete[] grammerRules;
-	delete[] tokenStream;
-	delete[] symTable; 
-}
 
 int Parser::getSymInx(int term) {
 	int i; 

@@ -9,7 +9,7 @@ Cameron: Email: haipayazoo@gmail.com
 * 	Date Created: 04/27/17
 *	Description:
 *
-* 	Last Modified: 04/27/17
+* 	Last Modified: 5/11/17
 */
 
 #include "Lexer.h" 
@@ -44,6 +44,7 @@ struct Node {
 	int sym; //index for the grammerRules
 	Node* kids[10];
 	int numofKids;
+	int uniqueID; 
 };
 
 struct occurence {
@@ -78,6 +79,7 @@ private:
 
 	Node* grandma; //node pointing to root node	
 	Node* tracker; //node pointing to top of stack 
+	int ID;
 
 	symbols* symArray = new symbols[45];
 	symbols* idInfo = new symbols[50]; //array to keep all the new ident created. 
