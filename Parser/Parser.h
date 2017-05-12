@@ -44,7 +44,8 @@ struct Node {
 	int sym; //index for the grammerRules
 	Node* kids[10];
 	int numofKids;
-	int uniqueID; 
+	int node_id;	
+	string value;	
 };
 
 struct occurence {

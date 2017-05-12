@@ -34,6 +34,7 @@ void Parser::createPST() {
 
 	Node* pgm = new Node;
 	int rule;
+	int id_num = 1; 
 	int numofTokens = numTokens;
 	int currentToken = 0;
 	int t = -1; //used to look up in LL parse matrix 
@@ -41,7 +42,8 @@ void Parser::createPST() {
 	//Add the PGM Node to the tree
 	pgm->sym = Pgm;
 	grandma = pgm;
-	pgm->uniqueID = ++ID;
+	pgm->node_id = id_num;	//CHANGED
+	id_num++;				//CHANGED
 
 	//Adds the PGM Node onto the stack
 	stackParser.push(pgm);
@@ -69,7 +71,7 @@ void Parser::createPST() {
 					//Add to symbol table
 					addtoSymTable(tokenStream[currentToken], currentToken + 1);
 				}
-
+				tracker->value = tokenStream[currentToken].value; //CHANGED
 				//Pop the node off the stack
 				stackParser.pop();
 				currentToken++;
@@ -102,7 +104,8 @@ void Parser::createPST() {
 					tracker->kids[i] = new Node;					
 					tracker->kids[i]->sym = grammerRules[rule].RHS[i];
 					tracker->kids[i]->numofKids = 0;
-					tracker->kids[i]->uniqueID = ++ID;
+					tracker->kids[i]->node_id = id_num;
+					id_num++; 
 				}
 
 				tracker->numofKids = grammerRules[rule].numKids;
@@ -190,19 +193,26 @@ void Parser::printTree() {
 }
 
 void Parser::printTreeHelper(Node* currentNode) {
-	if (currentNode == NULL) return; 
+	if (currentNode == NULL) return;
 	cout << "\n( ";
 	if (symArray[currentNode->sym].isTerm == false) {
-		cout << "Node:" << nonTerm(symArray[currentNode->sym].idnon) << " ID: " << currentNode->uniqueID;
+		cout << "Node: " << currentNode->node_id << " " << nonTerm(symArray[currentNode->sym].idnon); //CHANGED
 	}
 	else {
-		cout << "Node:" << tokenType(symArray[currentNode->sym].idterm) << " ID: " << currentNode->uniqueID;
+		cout << "Node: " << currentNode->node_id << " " << tokenType(symArray[currentNode->sym].idterm); //CHANGED
 	}
-	
+
+	//CHANGED - this whole if statement
+	if (symArray[currentNode->sym].idterm == ident ||
+		symArray[currentNode->sym].idterm == integer ||
+		symArray[currentNode->sym].idterm == floatInt ||
+		symArray[currentNode->sym].idterm == stringType) {
+		cout << " : \"" << currentNode->value << "\"";
+	}
 
 	for (int i = 0; i < currentNode->numofKids; i++)
 		printTreeHelper(currentNode->kids[i]);
-	cout << ")"  ; //end of a branch
+	cout << ")"; //end of a branch
 }
 
 void Parser::createAST() {
@@ -445,6 +455,8 @@ void Parser::copyGuts(Node* node1, Node* node2) {
 
 	node1->numofKids = node2->numofKids;
 	node1->sym = node2->sym; 
+	node1->node_id = node2->node_id;	//CHANGED
+	node1->value = node2->value;
 	//cout << "New: " << tokenType(symArray[node1->sym].idterm) << " num of kids: " << node1->numofKids << endl; 
 }
 
